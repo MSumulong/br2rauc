@@ -10,16 +10,16 @@ CRL="-crldays 5000"
 
 BASE="$(pwd)/openssl-ca"
 
-if [ -e $BASE ]; then
+if [ -e "$BASE" ]; then
   echo "$BASE already exists"
   exit 1
 fi
 
-mkdir -p $BASE/dev/{private,certs}
-touch $BASE/dev/index.txt
-echo 01 > $BASE/dev/serial
+mkdir -p "$BASE"/dev/{private,certs}
+touch "$BASE"/dev/index.txt
+echo 01 > "$BASE"/dev/serial
 
-cat > $BASE/openssl.cnf <<EOF
+cat > "$BASE"/openssl.cnf <<EOF
 [ ca ]
 default_ca      = CA_default            # The default ca section
 
@@ -80,14 +80,14 @@ authorityKeyIdentifier=keyid:always,issuer:always
 basicConstraints = CA:FALSE
 EOF
 
-export OPENSSL_CONF=$BASE/openssl.cnf
+export OPENSSL_CONF="$BASE"/openssl.cnf
 
 echo "Development CA"
-cd $BASE/dev
+cd "$BASE"/dev
 openssl req -newkey rsa:4096 -keyout private/ca.key.pem -out ca.csr.pem -subj "/O=$ORG/CN=$ORG $CA Development"
 openssl ca -batch -selfsign -extensions v3_ca -in ca.csr.pem -out ca.cert.pem -keyfile private/ca.key.pem
 
 echo "Development Signing Keys 1"
-cd $BASE/dev
+cd "$BASE"/dev
 openssl req -newkey rsa:4096 -keyout private/development-1.key.pem -out development-1.csr.pem -subj "/O=$ORG/CN=$ORG Development-1"
 openssl ca -batch -extensions v3_leaf -in development-1.csr.pem -out development-1.cert.pem
